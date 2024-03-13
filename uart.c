@@ -8,7 +8,7 @@
 #define ULITE_CONTROL_RST_TX	0x01
 #define ULITE_CONTROL_RST_RX	0x02
 
-struct uartlite_regs *const ttyUL0 = (struct uartlite_regs *)0x90000000;
+struct uartlite_regs *const ttyUL0 = (struct uartlite_regs *)0x10000000;
 
 void uart_put_c(char c) {
     while (ttyUL0->status & SR_TX_FIFO_FULL);
