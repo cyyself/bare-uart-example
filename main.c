@@ -54,6 +54,48 @@ void theadfix() {
     asm volatile ("csrc 0x7c0, %0" : : "r" ((1<<21)));
 }
 
+void check_zicboz() {
+    char a[127];
+    char* ptr = a;
+
+    // align ptr to 64B cache block
+    while ( ( (long)ptr & ((1lu<<6)-1)) != 0) {
+        ptr++;
+    }
+
+    // fill cache block with 'a'
+    for (int i=0;i<64;i++) {
+        ptr[i] = 'a';
+    }
+
+    // zero this block
+    asm volatile ("cbo.zero 0(%0)" : : "r" ((void*)ptr));
+    print_s("zeroed ");
+    dump_hex((unsigned long)ptr);
+    print_s("\r\n");
+
+    // test if this block is zero
+    int cnt_non_0 = 0;
+    for (int i=0;i<64;i++) {
+        if (ptr[i] != 0) {
+            cnt_non_0++;
+            print_s("non-0 at ");
+            dump_hex((unsigned long)&ptr[i]);
+            print_s("\r\n");
+        }
+    }
+
+    if (cnt_non_0 == 0) {
+        print_s("zicboz works\r\n");
+    } else {
+        print_s("zicboz does not work\r\n");
+    }
+}
+
+void turn_on_cbze_s_mode() {
+    asm volatile ("csrs menvcfg, %0" : : "r" ((1<<7)));
+}
+
 int main() {
     unsigned long hartid = get_hartid();
     print_s("hart ");
@@ -66,10 +108,13 @@ int main() {
     setup_mtvec();
     mmu_init();
     print_s("returned from mmu_init\r\n");
+    check_zicboz();
+    turn_on_cbze_s_mode();
     enable_counter_smode();
     print_s("entering smode\r\n");
     enter_smode();
     print_s("now entered smode\r\n");
+    check_zicboz();
     double x = 1.0;
     dump_hex(*(unsigned long*)(&x));
     v_memcpy(s1, s0, 64);

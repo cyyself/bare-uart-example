@@ -3,7 +3,7 @@ CC		:=	$(CROSS_COMPILE)gcc
 OBJCOPY	:=	$(CROSS_COMPILE)objcopy
 OBJDUMP :=  $(CROSS_COMPILE)objdump
 EXTRA_CFLAGS := -DARCH_HAS_PMP
-CFLAGS := -march=rv64gcv -nostdlib -static -mcmodel=medany -fno-builtin-printf -O0 $(EXTRA_CFLAGS)
+CFLAGS := -march=rv64gcv_zicbom_zicbop_zicboz -nostdlib -static -mcmodel=medany -fno-builtin-printf -O0 $(EXTRA_CFLAGS)
 .PHONY: clean
 
 all: start.bin dump.S
