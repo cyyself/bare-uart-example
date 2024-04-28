@@ -32,7 +32,10 @@ _start:
     li  x29, 0
     li  x30, 0
     li  x31, 0
-    la  sp, bootstacktop
+    csrr a0, mhartid
+    slli t0, a0, 12
+    la sp, bootstack
+    add sp, sp, t0
     jal main
 poweroff:
     j poweroff
@@ -41,7 +44,7 @@ _stack:
     .global bootstack
     .align 16
 bootstack:
-    .space 1024
+    .space 65536
     .global bootstacktop
 bootstacktop:
     .space 64
