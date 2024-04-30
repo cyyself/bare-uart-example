@@ -2,7 +2,7 @@ CROSS_COMPILE :=	riscv64-linux-gnu-
 CC		:=	$(CROSS_COMPILE)gcc
 OBJCOPY	:=	$(CROSS_COMPILE)objcopy
 OBJDUMP :=  $(CROSS_COMPILE)objdump
-EXTRA_CFLAGS := 
+EXTRA_CFLAGS := -march=rv64gc_zicond
 CFLAGS := -nostdlib -static -mcmodel=medany -fno-builtin-printf -O0 $(EXTRA_CFLAGS)
 .PHONY: clean
 
