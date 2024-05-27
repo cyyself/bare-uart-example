@@ -48,3 +48,20 @@ bootstack:
     .global bootstacktop
 bootstacktop:
     .space 64
+
+.globl test_memcpy
+# void *test_memcpy(void* dest, const void* src, size_t n)
+# a0=dest, a1=src, a2=n
+#
+test_memcpy:
+mv a3, a0 # Copy destination
+srl a2, a2, 2 # Convert bytes to 32b words
+vsetvli t0, a2, e32, m1, ta, ma # Vectors of 32b
+loop:
+vle32.v v0, (a1) # Load bytes
+sh2add a1, t0, a1 # Bump pointer
+sub a2, a2, t0 # Decrement count
+vse32.v v0, (a3) # Store bytes
+sh2add a3, t0, a3 # Bump pointer
+bnez a2, loop # Any more?
+ret # Return
