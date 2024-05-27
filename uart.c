@@ -11,7 +11,7 @@
 struct uartlite_regs *const ttyUL0 = (struct uartlite_regs *)0x40600000;
 
 void uart_put_c(char c) {
-    while (ttyUL0->status & SR_TX_FIFO_FULL);
+    // while (ttyUL0->status & SR_TX_FIFO_FULL);
     ttyUL0->tx_fifo = c;
 }
 
