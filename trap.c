@@ -40,6 +40,21 @@ void setup_mtvec() {
     );
 }
 
+void setup_stvec() {
+    void* ptr = &trap_handler;
+    print_s("setting stvec to ");
+    dump_hex((unsigned long)ptr);
+    print_s("\n");
+    if (((unsigned long)ptr & 0b11)) {
+        print_s("Error! stvec does not aligned to 4B\n");
+    }
+    asm volatile(
+        "csrw stvec, %0"
+        :
+        : "r" (ptr)
+    );
+}
+
 void enter_smode() {
     asm volatile("csrc mstatus, %0" : : "r" (0x1800)); // clear mpp to zero
     asm volatile("csrs mstatus, %0" : : "r" (0x0800)); // set mpp to s-mode

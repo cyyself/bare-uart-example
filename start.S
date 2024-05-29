@@ -1,14 +1,14 @@
 .text
 .globl _start
 _start:
-    // turn on fs in mstatus
+    // turn on fs in sstatus
     li x1, 1
     slli x1, x1, 13
-    csrs mstatus, x1
-    // turn on vs in mstatus
+    csrs sstatus, x1
+    // turn on vs in sstatus
     li x1, 1
     slli x1, x1, 9
-    csrs mstatus, x1
+    csrs sstatus, x1
     // clear all gpr
     li  x1, 0
     li  x2, 0
