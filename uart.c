@@ -1,6 +1,6 @@
 #include "uart.h"
 
-volatile unsigned int *const ttyS0 = (unsigned int *const)0x91400000;
+volatile unsigned int *const ttyS0 = (unsigned int *const)0xd4017000;
 
 #define UART8250_RX  0
 #define UART8250_TX  0
