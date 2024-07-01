@@ -96,29 +96,115 @@ void turn_on_cbze_s_mode() {
     asm volatile ("csrs menvcfg, %0" : : "r" ((1<<7)));
 }
 
+void test_rv32u() {
+    long mstatus;
+    asm volatile ("csrr %0, mstatus" : "=r" (mstatus));
+    // set uxl to 32
+    mstatus = mstatus & ~(0b11l << 32);
+    mstatus = mstatus | (0b01l << 32);
+    // set mpp to u mode
+    mstatus = mstatus & ~(0b11 << 11);
+    // enter u mode and test
+    asm volatile ("csrw mstatus, %0" : : "r" (mstatus));
+    long some_number = 0xdeadbeefdeadbeefl;
+    long consumer = 0;
+    asm volatile (
+        "mv a1, %1\n"
+        "lla a0, 2f\n"
+        "csrw mtvec, a0\n"
+        "lla a0, 1f\n"
+        "csrw mepc, a0\n"
+        "mret\n"
+        "1:\n"
+        ".short 0x582\n"
+        "ebreak\n"
+        ".p2align 2\n"
+        "2:\n"
+        "mv %0, a1\n"
+        : "=r" (consumer)
+        : "r" (some_number)
+    );
+    setup_mtvec();
+    print_s("consumer = ");
+    dump_hex(consumer);
+}
+
+void test_rv32u2() {
+    long mstatus;
+    asm volatile ("csrr %0, mstatus" : "=r" (mstatus));
+    // set uxl to 32
+    mstatus = mstatus & ~(0b11l << 32);
+    mstatus = mstatus | (0b01l << 32);
+    // set mpp to u mode
+    mstatus = mstatus & ~(0b11 << 11);
+    // enter u mode and test
+    asm volatile ("csrw mstatus, %0" : : "r" (mstatus));
+    long some_number = 0xdeadbeefdeadbeefl;
+    long consumer = 0;
+    asm volatile (
+        "mv a1, %1\n"
+        "lla a0, 2f\n"
+        "csrw mtvec, a0\n"
+        "lla a0, 1f\n"
+        "csrw mepc, a0\n"
+        "mret\n"
+        "1:\n"
+        "ebreak\n"
+        ".p2align 2\n"
+        "2:\n"
+        "mv %0, a1\n"
+        : "=r" (consumer)
+        : "r" (some_number)
+    );
+    setup_mtvec();
+    print_s("consumer = ");
+    dump_hex(consumer);
+}
+
+void test_rv32u3() {
+    long mstatus;
+    asm volatile ("csrr %0, mstatus" : "=r" (mstatus));
+    // set uxl to 32
+    mstatus = mstatus & ~(0b11l << 32);
+    mstatus = mstatus | (0b01l << 32);
+    // set mpp to u mode
+    mstatus = mstatus & ~(0b11 << 11);
+    asm volatile ("csrw mstatus, %0" : : "r" (mstatus));
+    // enter u mode and test
+    long some_number = 0xdeadbeefdeadbeefl;
+    long consumer = 0;
+    asm volatile (
+        "mv a1, %1\n"
+        "lla a0, 2f\n"
+        "csrw mtvec, a0\n"
+        "lla a0, 1f\n"
+        "csrw mepc, a0\n"
+        "mret\n"
+        "1:\n"
+        "addi a1, a1, 0\n"
+        "ebreak\n"
+        ".p2align 2\n"
+        "2:\n"
+        "mv %0, a1\n"
+        : "=r" (consumer)
+        : "r" (some_number)
+    );
+    setup_mtvec();
+    print_s("consumer = ");
+    dump_hex(consumer);
+}
+
 int main() {
     unsigned long hartid = get_hartid();
     print_s("hart ");
     print_long(hartid);
     print_s(" is booting\r\n");
     theadfix();
-    unsigned long mxstatus = get_mxstatus();
-    print_s("mxstatus = ");
-    dump_hex(mxstatus);
     setup_mtvec();
-    mmu_init();
-    print_s("returned from mmu_init\r\n");
-    check_zicboz();
-    turn_on_cbze_s_mode();
-    enable_counter_smode();
-    print_s("entering smode\r\n");
-    enter_smode();
-    print_s("now entered smode\r\n");
-    check_zicboz();
-    double x = 1.0;
-    dump_hex(*(unsigned long*)(&x));
-    v_memcpy(s1, s0, 64);
-    print_s(s1);
-    check_freq();
+    mmu_pmp_allow_all();
+    test_rv32u();
+    test_rv32u2();
+    test_rv32u3();
+    print_s("back\n");
     return 0;
 }

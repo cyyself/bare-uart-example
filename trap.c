@@ -27,9 +27,6 @@ void __attribute__((aligned(4))) trap_handler() {
 
 void setup_mtvec() {
     void* ptr = &trap_handler;
-    print_s("setting mtvec to ");
-    dump_hex((unsigned long)ptr);
-    print_s("\n");
     if (((unsigned long)ptr & 0b11)) {
         print_s("Error! mtvec does not aligned to 4B\n");
     }
